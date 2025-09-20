@@ -1,21 +1,21 @@
 FROM mysql:8.0
 
 #定义工作目录
-ENV WORK_PATH /usr/local/work
+ENV WORK_PATH=/usr/local/work
 
 #定义会被容器自动执行的目录
-ENV AUTO_RUN_DIR /docker-entrypoint-initdb.d
+ENV AUTO_RUN_DIR=/docker-entrypoint-initdb.d
 
 #定义sql文件名
-ENV FILE_0 hoj.sql
-ENV FILE_1 nacos.sql
-ENV FILE_2 nacos-data.sql
+ENV FILE_0=hoj.sql
+ENV FILE_1=nacos.sql
+ENV FILE_2=nacos-data.sql
 
 #定义shell文件名
-ENV INSTALL_DATA_SHELL run.sh
+ENV INSTALL_DATA_SHELL=run.sh
 
 #定义生成nacos-data.sql的文件名
-ENV NACOS_DATA_SHELL bcrypt
+ENV NACOS_DATA_SHELL=bcrypt
 
 ENV NACOS_USERNAME=${NACOS_USERNAME}
 
