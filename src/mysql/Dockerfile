@@ -23,10 +23,19 @@ ENV NACOS_PASSWORD=${NACOS_PASSWORD}
 
 COPY ./$FILE_0 $WORK_PATH/
 COPY ./$FILE_1 $WORK_PATH/
-COPY ./$FILE_3 $WORK_PATH/
 
 COPY ./$INSTALL_DATA_SHELL $AUTO_RUN_DIR/
-COPY ./bcrypt  $WORK_PATH/
+
+# 根据架构选择对应的二进制文件
+ARG TARGETARCH
+COPY ./bcrypt* $WORK_PATH/
+RUN if [ "$TARGETARCH" = "arm64" ] || [ "$TARGETARCH" = "aarch64" ]; then \
+        if [ -f "$WORK_PATH/bcrypt_arm" ]; then \
+            mv $WORK_PATH/bcrypt_arm $WORK_PATH/bcrypt && rm -f $WORK_PATH/bcrypt_*; \
+        fi \
+    else \
+        rm -f $WORK_PATH/bcrypt_arm; \
+    fi
 
 COPY ./mysql.cnf /etc/mysql/conf.d/
 
