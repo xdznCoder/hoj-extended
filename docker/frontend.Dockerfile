@@ -1,29 +1,17 @@
 # syntax=docker/dockerfile:1
-# 前端镜像：源码在 submodule source/hoj（hoj-vue），多阶段构建，最终为 nginx 镜像
-# 用法（CI 中，context=仓库根，含 submodule）：
+# 前端镜像：使用仓库内已构建好的前端产物（src/frontend/html/ 与 scrollBoard），不经 npm，稳定不卡
+# 若需从源码重新构建前端，请本地执行 hoj-vue 的 npm run build 后用产物替换 src/frontend/html 再重建本镜像
+# 用法（CI 中，context=仓库根，含 submodule 可选）：
 #   docker build -f docker/frontend.Dockerfile -t ghcr.io/<owner>/hoj-extended-frontend:<tag> .
 
-########## 构建阶段 ##########
-FROM node:16-alpine AS fe
-WORKDIR /app
-# 先拷 package.json/lock，利用层缓存（若 lock 不存在则回退 install）
-COPY source/hoj/hoj-vue/package.json source/hoj/hoj-vue/package-lock.json* ./
-COPY source/hoj/hoj-vue/ ./
-RUN rm -f package-lock.json && \
-    npm install --no-audit --no-fund --registry=https://registry.npmjs.org --fetch-timeout=60000 --fetch-retries=2 && \
-    npm run build
-
-########## 运行阶段 ##########
 FROM nginx:1.15-alpine
 
 COPY src/frontend/default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY src/frontend/default.conf.ssl.template /etc/nginx/conf.d/default.conf.ssl.template
 
-# 前端构建产物
-COPY --from=fe /app/dist /usr/share/nginx/html/
-
-# 榜单页面等静态资源沿用仓库内构建产物
-COPY src/frontend/scrollBoard /usr/share/nginx/scrollBoard/
+# 已构建的前端产物（与原有 src/frontend/Dockerfile 一致）
+ADD src/frontend/html/ /usr/share/nginx/html/
+ADD src/frontend/scrollBoard/ /usr/share/nginx/scrollBoard/
 
 COPY src/frontend/run.sh /docker-entrypoint.sh
 RUN chmod a+x /docker-entrypoint.sh
