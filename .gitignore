@@ -1,0 +1,16 @@
+# 数据库运行数据，绝对不要提交
+standAlone/hoj/data/mysql/
+standAlone/hoj/data/redis/
+standAlone/hoj/log/
+# 编译产出、压缩包
+src/frontend/dist/ 
+src/frontend/distBack.tar.gz 
+standAlone/hoj.tar
+# SSL证书、图片附件（服务器资源，不上传源码库）
+standAlone/backstage.8bce8c6e.png
+standAlone/logo.a0924d7d.png
+standAlone/server.crt
+standAlone/server.key
+# 服务器本地配置文件（避免本地仓库覆盖线上配置）
+standAlone/hoj/ 
+standAlone/.env

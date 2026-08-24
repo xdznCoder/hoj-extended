@@ -22,6 +22,7 @@ services:
   hoj-mysql:
     #仅支持amd64
     image: registry.cn-shenzhen.aliyuncs.com/hcode/hoj_database
+    #image: mysql:8.0.27
     #支持amd64、arm64
     #image: himitzh/hoj_database
     container_name: hoj-mysql
@@ -151,17 +152,18 @@ services:
     container_name: hoj-frontend
     restart: always
     # 开启https，请提供证书
-    #volumes:
-    #  - ./server.crt:/etc/nginx/etc/crt/server.crt
-    #  - ./server.key:/etc/nginx/etc/crt/server.key
+    volumes:
+     - ./server.crt:/etc/nginx/etc/crt/server.crt
+     - ./server.key:/etc/nginx/etc/crt/server.key
     # 修改前端logo
-    #  - ./logo.a0924d7d.png:/usr/share/nginx/html/assets/img/logo.a0924d7d.png
-    #  - ./backstage.8bce8c6e.png:/usr/share/nginx/html/assets/img/backstage.8bce8c6e.png
+     - /home/ubuntu/hoj-deploy/src/frontend/dist:/usr/share/nginx/html
+     - ./logo.a0924d7d.png:/usr/share/nginx/html/assets/img/logo.a0924d7d.png
+     - ./backstage.8bce8c6e.png:/usr/share/nginx/html/assets/img/backstage.8bce8c6e.png
     environment:
-      - SERVER_NAME=localhost # 域名(例如baidu.com)或localhost(本地)
+      - SERVER_NAME=xdzn.asia
       - BACKEND_SERVER_HOST=${BACKEND_HOST:-172.20.0.5} # backend后端服务地址
       - BACKEND_SERVER_PORT=${BACKEND_PORT:-6688} # backend后端服务端口号
-      - USE_HTTPS=false # 使用https请设置为true
+      - USE_HTTPS=true # 使用https请设置为true
     ports:
       - "80:80"
       - "443:443"
@@ -170,7 +172,7 @@ services:
         ipv4_address: 172.20.0.6
 
   hoj-judgeserver:
-    #仅支持amd64
+    #仅支持amd6i4
     image: registry.cn-shenzhen.aliyuncs.com/hcode/hoj_judgeserver
     #支持amd64、arm64
     #image: himitzh/hoj_judgeserver
