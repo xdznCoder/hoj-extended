@@ -41,8 +41,8 @@ jobs:
           file: docker/backend.Dockerfile
           push: true
           tags: |
-            ghcr.io/xdznCoder/hoj-extended-backend:${{ github.ref_name }}
-            ghcr.io/xdznCoder/hoj-extended-backend:latest
+            ghcr.io/xdzncoder/hoj-extended-backend:${{ github.ref_name }}
+            ghcr.io/xdzncoder/hoj-extended-backend:latest
           cache-from: type=gha,scope=backend
           cache-to: type=gha,scope=backend,mode=max
 
@@ -53,8 +53,8 @@ jobs:
           file: docker/judgeserver.Dockerfile
           push: true
           tags: |
-            ghcr.io/xdznCoder/hoj-extended-judgeserver:${{ github.ref_name }}
-            ghcr.io/xdznCoder/hoj-extended-judgeserver:latest
+            ghcr.io/xdzncoder/hoj-extended-judgeserver:${{ github.ref_name }}
+            ghcr.io/xdzncoder/hoj-extended-judgeserver:latest
           cache-from: type=gha,scope=judgeserver
           cache-to: type=gha,scope=judgeserver,mode=max
 
@@ -65,8 +65,8 @@ jobs:
           file: docker/frontend.Dockerfile
           push: true
           tags: |
-            ghcr.io/xdznCoder/hoj-extended-frontend:${{ github.ref_name }}
-            ghcr.io/xdznCoder/hoj-extended-frontend:latest
+            ghcr.io/xdzncoder/hoj-extended-frontend:${{ github.ref_name }}
+            ghcr.io/xdzncoder/hoj-extended-frontend:latest
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,scope=frontend,mode=max
 
@@ -76,8 +76,8 @@ jobs:
           context: src/rsync
           push: true
           tags: |
-            ghcr.io/xdznCoder/hoj-extended-rsync:${{ github.ref_name }}
-            ghcr.io/xdznCoder/hoj-extended-rsync:latest
+            ghcr.io/xdzncoder/hoj-extended-rsync:${{ github.ref_name }}
+            ghcr.io/xdzncoder/hoj-extended-rsync:latest
 
       - name: Build & push mysql-checker
         uses: docker/build-push-action@v5
@@ -85,8 +85,8 @@ jobs:
           context: src/mysql-checker
           push: true
           tags: |
-            ghcr.io/xdznCoder/hoj-extended-mysql-checker:${{ github.ref_name }}
-            ghcr.io/xdznCoder/hoj-extended-mysql-checker:latest
+            ghcr.io/xdzncoder/hoj-extended-mysql-checker:${{ github.ref_name }}
+            ghcr.io/xdzncoder/hoj-extended-mysql-checker:latest
 
       - name: Make packages public (best-effort)
         env:

@@ -68,7 +68,7 @@ services:
     
   hoj-backend:
     #仅支持amd64
-    image: ghcr.io/xdznCoder/hoj-extended-backend:latest
+    image: ghcr.io/xdzncoder/hoj-extended-backend:latest
     #支持amd64、arm64
     #image: himitzh/hoj_backend
     container_name: hoj-backend
@@ -131,7 +131,7 @@ services:
   
   hoj-frontend:
     #仅支持amd64
-    image: ghcr.io/xdznCoder/hoj-extended-frontend:latest
+    image: ghcr.io/xdzncoder/hoj-extended-frontend:latest
     #支持amd64、arm64
     #image: himitzh/hoj_frontend
     container_name: hoj-frontend
@@ -157,7 +157,7 @@ services:
 
   hoj-rsync-master:
     #仅支持amd64
-    image: ghcr.io/xdznCoder/hoj-extended-rsync:latest
+    image: ghcr.io/xdzncoder/hoj-extended-rsync:latest
     #支持amd64、arm64
     #image: himitzh/hoj_rsync
     container_name: hoj-rsync-master
@@ -172,7 +172,7 @@ services:
 
   hoj-mysql-checker:
     #仅支持amd64
-    image: ghcr.io/xdznCoder/hoj-extended-mysql-checker:latest
+    image: ghcr.io/xdzncoder/hoj-extended-mysql-checker:latest
     #支持amd64、arm64
     #image: himitzh/hoj_database_checker
     container_name: hoj-mysql-checker
