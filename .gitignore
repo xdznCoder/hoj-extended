@@ -12,5 +12,8 @@ standAlone/logo.a0924d7d.png
 standAlone/server.crt
 standAlone/server.key
 # 服务器本地配置文件（避免本地仓库覆盖线上配置）
-standAlone/hoj/ 
-standAlone/.env
+standAlone/hoj/
+
+# 本地敏感配置：所有 .env 一律不提交（仅提交 .env.example 模板）
+**/.env
+!**/.env.example
