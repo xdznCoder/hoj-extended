@@ -94,5 +94,5 @@ jobs:
         run: |
           for pkg in hoj-extended-backend hoj-extended-judgeserver hoj-extended-frontend hoj-extended-rsync hoj-extended-mysql-checker; do
             printf '{"visibility":"public"}' > /tmp/v.json
-            gh api --method PUT /user/packages/container/$pkg/visibility --input /tmp/v.json || echo "skip $pkg (set visibility manually in GitHub Packages)"
+            gh api --method PUT /orgs/xdznCoder/packages/container/$pkg/visibility --input /tmp/v.json || echo "skip $pkg (set visibility manually in GitHub Packages)"
           done
