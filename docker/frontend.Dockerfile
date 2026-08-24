@@ -9,9 +9,8 @@ WORKDIR /app
 # 先拷 package.json/lock，利用层缓存（若 lock 不存在则回退 install）
 COPY source/hoj/hoj-vue/package.json source/hoj/hoj-vue/package-lock.json* ./
 COPY source/hoj/hoj-vue/ ./
-RUN npm config set registry https://registry.npmmirror.com && \
-    rm -f package-lock.json && \
-    npm install --no-audit --no-fund && \
+RUN rm -f package-lock.json && \
+    npm install --no-audit --no-fund --registry=https://registry.npmjs.org --fetch-timeout=60000 --fetch-retries=2 && \
     npm run build
 
 ########## 运行阶段 ##########
