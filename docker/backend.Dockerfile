@@ -4,7 +4,7 @@
 #   docker build -f docker/backend.Dockerfile -t ghcr.io/<owner>/hoj-extended-backend:<tag> .
 
 ########## 构建阶段 ##########
-FROM maven:3.8-openjdk-8 AS build
+FROM maven:3.8-eclipse-temurin-8 AS build
 WORKDIR /build
 
 # 复制 submodule 里的源码（hoj-springboot 整个多模块工程，含 api 依赖）
@@ -14,7 +14,7 @@ COPY source/hoj/hoj-springboot/ /build/
 RUN mvn -q clean package -pl DataBackup -am -DskipTests -Dmaven.javadoc.skip=true
 
 ########## 运行阶段 ##########
-FROM openjdk:8
+FROM eclipse-temurin:8-jre
 ENV TZ=Asia/Shanghai
 ENV BACKEND_SERVER_PORT=6688
 VOLUME ["/hoj/file", "/hoj/testcase"]
