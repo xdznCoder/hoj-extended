@@ -1,0 +1,98 @@
+name: Build & push project images to ghcr.io
+
+on:
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with submodule)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: true
+          token: ${{ secrets.SUBMODULE_TOKEN || github.token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/backend.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/xdznCoder/hoj-extended-backend:${{ github.ref_name }}
+            ghcr.io/xdznCoder/hoj-extended-backend:latest
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
+
+      - name: Build & push judgeserver
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/judgeserver.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/xdznCoder/hoj-extended-judgeserver:${{ github.ref_name }}
+            ghcr.io/xdznCoder/hoj-extended-judgeserver:latest
+          cache-from: type=gha,scope=judgeserver
+          cache-to: type=gha,scope=judgeserver,mode=max
+
+      - name: Build & push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/frontend.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/xdznCoder/hoj-extended-frontend:${{ github.ref_name }}
+            ghcr.io/xdznCoder/hoj-extended-frontend:latest
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max
+
+      - name: Build & push rsync
+        uses: docker/build-push-action@v5
+        with:
+          context: src/rsync
+          push: true
+          tags: |
+            ghcr.io/xdznCoder/hoj-extended-rsync:${{ github.ref_name }}
+            ghcr.io/xdznCoder/hoj-extended-rsync:latest
+
+      - name: Build & push mysql-checker
+        uses: docker/build-push-action@v5
+        with:
+          context: src/mysql-checker
+          push: true
+          tags: |
+            ghcr.io/xdznCoder/hoj-extended-mysql-checker:${{ github.ref_name }}
+            ghcr.io/xdznCoder/hoj-extended-mysql-checker:latest
+
+      - name: Make packages public (best-effort)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for pkg in hoj-extended-backend hoj-extended-judgeserver hoj-extended-frontend hoj-extended-rsync hoj-extended-mysql-checker; do
+            printf '{"visibility":"public"}' > /tmp/v.json
+            gh api --method PUT /user/packages/container/$pkg/visibility --input /tmp/v.json || echo "skip $pkg (set visibility manually in GitHub Packages)"
+          done

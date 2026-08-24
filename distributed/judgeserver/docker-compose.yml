@@ -3,7 +3,7 @@ services:
 
   hoj-judgeserver:
     #仅支持amd64
-    image: registry.cn-shenzhen.aliyuncs.com/hcode/hoj_judgeserver
+    image: ghcr.io/xdznCoder/hoj-extended-judgeserver:latest
     #支持amd64、arm64
     #image: himitzh/hoj_judgeserver
     container_name: hoj-judgeserver
@@ -40,7 +40,7 @@ services:
 
   hoj-rsync-slave:
     #仅支持amd64
-    image: registry.cn-shenzhen.aliyuncs.com/hcode/hoj_rsync:1.0
+    image: ghcr.io/xdznCoder/hoj-extended-rsync:latest
     #支持amd64、arm64
     #image: himitzh/hoj_rsync
     container_name: hoj-rsync-slave

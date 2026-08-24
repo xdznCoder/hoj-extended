@@ -1,5 +1,17 @@
 # 环境准备
 
+## 二次开发（含源码 submodule）
+
+本仓库以 git submodule 引入 HOJ 源码（见 `source/hoj`），用于二次开发。源码改动 → CI 从源码构建本项目镜像并推送到 **ghcr.io**（public）→ 服务器仅 `docker compose pull` 镜像，**不拉源码**。
+
+- **源码仓库**：`github.com/xdznCoder/HOJ-fork`（submodule `source/hoj`）
+- **本项目镜像**（ghcr.io/xdznCoder/）：`hoj-extended-backend`、`hoj-extended-frontend`、`hoj-extended-judgeserver`、`hoj-extended-rsync`、`hoj-extended-mysql-checker`
+- **详细流程**：见 [`docs/二次开发流程.md`](docs/二次开发流程.md)
+
+> 注意：请用 `--recurse-submodules` 克隆，或 `git submodule update --init --recursive`。
+
+---
+
 ### Linux 环境
 
 #### 1. 安装必要的依赖
@@ -176,7 +188,7 @@ Windows 下的安装仅供体验，勿在生产环境使用。如有必要，请
 
 ```yaml
 hoj-frontend:
-    image: registry.cn-shenzhen.aliyuncs.com/hcode/hoj_frontend
+    image: ghcr.io/xdznCoder/hoj-extended-frontend:latest
     container_name: hoj-frontend
     restart: always
     # 开启https，请提供证书
