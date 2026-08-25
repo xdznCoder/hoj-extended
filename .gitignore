@@ -20,3 +20,6 @@ standAlone/hoj/
 
 # 本地工具/临时目录
 .dsh-vision-router/
+
+# MCP 服务构建产物
+mcp-server/target/
