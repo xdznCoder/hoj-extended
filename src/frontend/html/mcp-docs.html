@@ -103,7 +103,7 @@
       <p class="lead">通过 MCP 接口，让 AI 助手 / 编程工具直接查询题库、题目详情、排行榜与每日一题。</p>
       <div class="card">
         <dl class="kv">
-          <dt>服务地址</dt><dd><code>https://xdzn.asia/sse</code></dd>
+          <dt>服务地址</dt><dd><code>https://xdzn.asia/mcp</code></dd>
           <dt>鉴权方式</dt><dd>请求头 <code>Authorization: Bearer &lt;你的KEY&gt;</code></dd>
           <dt>返回格式</dt><dd>JSON（MCP 标准响应）</dd>
           <dt>能力</dt><dd>题库 / 题目详情 / 排行 / 每日一题（只读）</dd>
@@ -116,11 +116,13 @@
     <section id="start" class="section">
       <h1>快速开始</h1>
       <p class="lead">两分钟接入：先列工具，再调用工具。</p>
-      <h2>1. 查看可用工具</h2>
-      <pre><code>curl -X POST 'https://xdzn.asia/sse'   -H 'Authorization: Bearer &lt;你的KEY&gt;'   -H 'Content-Type: application/json'   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'</code></pre>
-      <h2>2. 调用某个工具</h2>
-      <pre><code>curl -X POST 'https://xdzn.asia/sse'   -H 'Authorization: Bearer &lt;你的KEY&gt;'   -H 'Content-Type: application/json'   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"getRanking","arguments":{"type":"user","page":1,"limit":20}}}'</code></pre>
-      <div class="muted">如果客户端要求 <code>SSE</code> 类型，把地址换成 <code>https://xdzn.asia/sse</code>。</div>
+      <h2>1. 建立会话（initialize，保存响应头 Mcp-Session-Id）</h2>
+      <pre><code>curl -sS -D - -o /dev/null -X POST 'https://xdzn.asia/mcp' -H 'Authorization: Bearer &lt;你的KEY&gt;' -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
+# 记录返回头里的 Mcp-Session-Id</code></pre>
+      <h2>2. 查看工具 / 调用工具（带上 Mcp-Session-Id）</h2>
+      <pre><code>curl -sS -X POST 'https://xdzn.asia/mcp' -H 'Authorization: Bearer &lt;你的KEY&gt;' -H 'Content-Type: application/json' -H 'Mcp-Session-Id: &lt;SESSION_ID&gt;' -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+curl -sS -X POST 'https://xdzn.asia/mcp' -H 'Authorization: Bearer &lt;你的KEY&gt;' -H 'Content-Type: application/json' -H 'Mcp-Session-Id: &lt;SESSION_ID&gt;' -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"getRanking","arguments":{"type":"user","page":1,"limit":20}}}'</code></pre>
+      <div class="muted">Streamable HTTP：先 initialize 拿会话，再带 Mcp-Session-Id 请求；响应为 JSON 或 SSE data 行。</div>
     </section>
 
     <!-- 工具列表 -->
@@ -164,13 +166,13 @@
 
       <div class="tabpane on" data-pane="claude">
         <h3>Claude Code（命令行）</h3>
-        <pre><code>claude mcp add hoj --transport sse --url https://xdzn.asia/sse --header "Authorization: Bearer &lt;KEY&gt;"</code></pre>
+        <pre><code>claude mcp add hoj --transport http --url https://xdzn.asia/mcp --header "Authorization: Bearer &lt;KEY&gt;"</code></pre>
         <h3>Claude Desktop / 配置文件</h3>
         <pre><code>{
   "mcpServers": {
     "hoj": {
-      "type": "sse",
-      "url": "https://xdzn.asia/sse",
+      "type": "http",
+      "url": "https://xdzn.asia/mcp",
       "headers": { "Authorization": "Bearer &lt;KEY&gt;" }
     }
   }
@@ -181,8 +183,8 @@
         <h3>Cursor</h3>
         <p class="muted">Settings → MCP → Add MCP Server,填入：</p>
         <pre><code>{
-  "type": "sse",
-  "url": "https://xdzn.asia/sse",
+  "type": "http",
+  "url": "https://xdzn.asia/mcp",
   "headers": { "Authorization": "Bearer &lt;KEY&gt;" }
 }</code></pre>
       </div>
@@ -190,8 +192,8 @@
       <div class="tabpane" data-pane="cherry">
         <h3>Cherry Studio</h3>
         <ul>
-          <li>新建 MCP 服务器，类型选 <b>SSE</b>；</li>
-          <li>地址：<code>https://xdzn.asia/sse</code>；</li>
+          <li>新建 MCP 服务器，类型选 <b>HTTP</b>（Streamable）；</li>
+          <li>地址：<code>https://xdzn.asia/mcp</code>；</li>
           <li>请求头：<code>Authorization: Bearer &lt;KEY&gt;</code>；</li>
           <li>启用后即可在对话中使用该服务工具。</li>
         </ul>
@@ -202,8 +204,8 @@
         <p class="muted">所有 MCP 客户端都是配置“MCP Server 条目 + Bearer”，填入：</p>
         <table>
           <tr><th>字段</th><th>值</th></tr>
-          <tr><td>类型</td><td>http（多数客户端）；若客户端只支持 SSE 则选 sse</td></tr>
-          <tr><td>网址</td><td><code>https://xdzn.asia/sse</code></td></tr>
+          <tr><td>类型</td><td>http（Streamable HTTP）</td></tr>
+          <tr><td>网址</td><td><code>https://xdzn.asia/mcp</code></td></tr>
           <tr><td>请求头</td><td><code>Authorization: Bearer &lt;KEY&gt;</code></td></tr>
         </table>
       </div>
@@ -242,7 +244,7 @@
       <h1>常见问题</h1>
       <details class="faq"><summary>没有 API Key 能用吗？</summary><div class="bd">不能。需要向服务提供方申请 Key，并在请求头 <code>Authorization: Bearer</code> 中携带。</div></details>
       <details class="faq"><summary>返回 401 怎么办？</summary><div class="bd">Key 缺失或错误。检查请求头里 <code>Bearer </code> 与 Key 是否准确，或联系提供方确认 Key 是否有效。</div></details>
-      <details class="faq"><summary>应该用 http 还是 sse？</summary><div class="bd">优先 <code>http</code>，地址 <code>https://xdzn.asia/sse</code>；若客户端只支持 SSE，用 <code>https://xdzn.asia/sse</code> 并把类型设为 sse。</div></details>
+      <details class="faq"><summary>使用什么传输？</summary><div class="bd">本服务使用 <b>Streamable HTTP</b>（MCP 新标准传输），地址 <code>https://xdzn.asia/mcp</code>，类型选 <b>http</b>。</div></details>
       <details class="faq"><summary>工具返回的数据范围？</summary><div class="bd">仅公开数据（公开题库、排行榜、每日一题训练），均为只读，不涉及提交/修改。</div></details>
     </section>
 
