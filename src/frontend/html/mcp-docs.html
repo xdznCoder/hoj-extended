@@ -280,12 +280,8 @@ async function sseEndpoint(){
   let buf='', ep=null;
   const timer=setTimeout(()=>ctrl.abort(),15000);
   while(!ep){ const {done,value}=await reader.read(); if(done) break; buf+=dec.decode(value,{stream:true});
-    const parts=buf.split('
-
-'); buf=parts.pop();
-    for(const part of parts){ const d=part.split('
-').filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trim()).join('
-'); if(d) ep=d; } }
+    const parts=buf.split('\n\n'); buf=parts.pop();
+    for(const part of parts){ const d=part.split('\n').filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trim()).join('\n'); if(d) ep=d; } }
   clearTimeout(timer); ctrl.abort();
   if(!ep) throw new Error('SSE 握手失败：未获取到 message endpoint');
   return ep;
