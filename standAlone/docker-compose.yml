@@ -243,6 +243,17 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  hoj-mcp-server: # 对外只读 MCP 服务（题库/排名/每日一题）
+    restart: always
+    container_name: hoj-mcp-server
+    image: ghcr.io/xdzncoder/hoj-extended-mcp:latest
+    environment:
+      - MCP_UPSTREAM=${MCP_UPSTREAM:-http://hoj-backend:6688}
+      - MCP_API_KEYS=${MCP_API_KEYS:-}
+    networks:
+      hoj-network:
+        ipv4_address: 172.20.0.9
+
 networks:
   hoj-network:
     driver: bridge

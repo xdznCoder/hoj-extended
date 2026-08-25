@@ -15,6 +15,9 @@ Authorization: Bearer <MCP_API_KEYS>   # 这个 key 来自 .env 的 MCP_API_KEYS
 
 ## 二、如何查看“已拥有的 MCP 服务/工具”
 
+### 0) 在线文档/查询页（已集成到前端）
+浏览器直接打开：`https://xdzn.asia/mcp-docs.html` —— 可在线列出工具、调用工具、查看各 Agent 接入方式，无需装任何客户端。
+
 MCP 客户端会自动发现工具（`tools/list`）。你也可以手动看：
 
 ### 1) 用官方 MCP Inspector（最直观）

@@ -88,11 +88,23 @@ jobs:
             ghcr.io/xdzncoder/hoj-extended-mysql-checker:${{ github.ref_name }}
             ghcr.io/xdzncoder/hoj-extended-mysql-checker:latest
 
+      - name: Build & push mcp
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/mcp.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/xdzncoder/hoj-extended-mcp:${{ github.ref_name }}
+            ghcr.io/xdzncoder/hoj-extended-mcp:latest
+          cache-from: type=gha,scope=mcp
+          cache-to: type=gha,scope=mcp,mode=max
+
       - name: Make packages public (best-effort)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for pkg in hoj-extended-backend hoj-extended-judgeserver hoj-extended-frontend hoj-extended-rsync hoj-extended-mysql-checker; do
+          for pkg in hoj-extended-backend hoj-extended-judgeserver hoj-extended-frontend hoj-extended-rsync hoj-extended-mysql-checker hoj-extended-mcp; do
             printf '{"visibility":"public"}' > /tmp/v.json
             gh api --method PUT /orgs/xdznCoder/packages/container/$pkg/visibility --input /tmp/v.json || echo "skip $pkg (set visibility manually in GitHub Packages)"
           done

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOJ MCP · 在线文档与查询</title>
+<style>
+  :root{--brand:#2f6feb;--bg:#f6f8fb;--card:#fff;--border:#e4e9f0;--text:#20262e;--dim:#7a8794}
+  *{box-sizing:border-box}body{margin:0;font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text)}
+  header{background:linear-gradient(90deg,#2f6feb,#6b5bff);color:#fff;padding:24px 32px}
+  header h1{margin:0;font-size:22px}header p{margin:6px 0 0;opacity:.85;font-size:13px}
+  .wrap{max-width:1080px;margin:24px auto;padding:0 20px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  h2{margin:0 0 12px;font-size:17px}
+  label{display:block;font-size:13px;margin:8px 0 4px;color:var(--dim)}
+  input,textarea,select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit}
+  button{margin-top:10px;padding:8px 16px;border:0;border-radius:8px;background:var(--brand);color:#fff;cursor:pointer;font-size:13px}
+  button:hover{filter:brightness(1.05)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:200px}
+  pre{background:#0f172a;color:#d7e3ff;padding:14px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.5;white-space:pre-wrap}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .tool{border:1px solid var(--border);border-radius:8px;padding:12px}
+  .tool b{color:var(--brand)}.tool .d{color:var(--dim);font-size:12px}
+  code{background:#eef2f7;padding:2px 6px;border-radius:4px;font-size:12px}
+  .muted{color:var(--dim);font-size:12px}
+  .badge{display:inline-block;background:#e6f0ff;color:#2f6feb;border-radius:10px;padding:2px 8px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>HOJ MCP · 在线文档与查询</h1>
+  <p>只读访问题库 / 排名 / 每日一题 · 端点 <code>/mcp</code> · MCP Streamable HTTP</p>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <h2>服务信息</h2>
+    <div>端点：<code>https://xdzn.asia/mcp</code> &nbsp; 鉴权：<code>Authorization: Bearer &lt;你的KEY&gt;</code></div>
+    <div class="muted" style="margin-top:8px">打开本页即视为已集成到前端；/mcp 已由 nginx 反代到 mcp-server:3000。</div>
+  </div>
+
+  <div class="card">
+    <h2>查询工具（调 /mcp）</h2>
+    <div class="row">
+      <div>
+        <label>API Key（Bearer；留空=不鉴权）</label>
+        <input id="key" placeholder="粘贴 MCP_API_KEYS 中的某个 key" type="password">
+      </div>
+      <div>
+        <label>工具</label>
+        <select id="tool">
+          <option value="listProblems">listProblems 题库列表</option>
+          <option value="getProblem">getProblem 题目详情</option>
+          <option value="getRanking">getRanking 排名</option>
+          <option value="getDailyProblem">getDailyProblem 每日一题</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>参数 JSON（按工具填，可选）</label>
+        <textarea id="args" rows="3" placeholder='如 {"page":1,"limit":20}'>{"page":1,"limit":20}</textarea>
+      </div>
+    </div>
+    <button onclick="toolsList()">列出所有工具 (tools/list)</button>
+    <button onclick="callTool()">调用工具 (tools/call)</button>
+    <pre id="out" style="margin-top:14px">// 结果将显示在这里</pre>
+  </div>
+
+  <div class="card">
+    <h2>已提供的工具</h2>
+    <div class="grid">
+      <div class="tool"><b>listProblems</b><div class="d">题库分页/关键词/难度</div><div class="muted">/api/get-problem-list</div></div>
+      <div class="tool"><b>getProblem</b><div class="d">题目详情/样例/标签</div><div class="muted">/api/get-problem-detail</div></div>
+      <div class="tool"><b>getRanking</b><div class="d">排名(全局/近7天)</div><div class="muted">/api/get-rank-list etc.</div></div>
+      <div class="tool"><b>getDailyProblem</b><div class="d">最新每日一题(训练)</div><div class="muted">/api/get-training-*</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>其它 Agent 如何接入</h2>
+    <div>
+      <p class="muted">本质上任何 MCP 客户端都是“一个 HTTP MCP Server 条目 + Bearer”。</p>
+      <p><b>Claude Code</b></p>
+      <pre>claude mcp add hoj --transport http --url https://xdzn.asia/mcp --header "Authorization: Bearer &lt;KEY&gt;"</pre>
+      <p><b>Claude Desktop / Cursor</b>（mcpServers 条目）</p>
+      <pre>{"mcpServers":{"hoj":{"type":"http","url":"https://xdzn.asia/mcp","headers":{"Authorization":"Bearer &lt;KEY&gt;"}}}}</pre>
+      <p><b>Cherry Studio 等</b>：新建 MCP → 类型 HTTP/SSE → 地址 <code>https://xdzn.asia/mcp</code> → 请求头 <code>Authorization: Bearer &lt;KEY&gt;</code></p>
+    </div>
+  </div>
+
+</div>
+<script>
+const EP = "/mcp";
+function headers(){const k=document.getElementById("key").value.trim();const h={"Content-Type":"application/json"};if(k)h["Authorization"]="Bearer "+k;return h;}
+async function rpc(body){const r=await fetch(EP,{method:"POST",headers:headers(),body:JSON.stringify(body)});const t=await r.text();try{return JSON.parse(t)}catch(e){return t}}
+function show(x){document.getElementById("out").textContent=(typeof x==="string"?x:JSON.stringify(x,null,2))}
+async function toolsList(){show("loading...");try{const r=await rpc({jsonrpc:"2.0",id:Date.now(),method:"tools/list",params:{}});show(r)}catch(e){show("错误："+e.message)}}
+async function callTool(){const name=document.getElementById("tool").value;let args={};try{args=JSON.parse(document.getElementById("args").value||"{}")}catch(e){show("参数不是合法 JSON: "+e.message);return}show("loading...");try{const r=await rpc({jsonrpc:"2.0",id:Date.now(),method:"tools/call",params:{name,arguments:args}});show(r)}catch(e){show("错误："+e.message)}}
+</script>
+</body>
+</html>
