@@ -103,7 +103,7 @@
       <p class="lead">通过 MCP 接口，让 AI 助手 / 编程工具直接查询题库、题目详情、排行榜与每日一题。</p>
       <div class="card">
         <dl class="kv">
-          <dt>服务地址</dt><dd><code>https://xdzn.asia/mcp</code></dd>
+          <dt>服务地址</dt><dd><code>https://xdzn.asia/sse</code></dd>
           <dt>鉴权方式</dt><dd>请求头 <code>Authorization: Bearer &lt;你的KEY&gt;</code></dd>
           <dt>返回格式</dt><dd>JSON（MCP 标准响应）</dd>
           <dt>能力</dt><dd>题库 / 题目详情 / 排行 / 每日一题（只读）</dd>
@@ -117,9 +117,9 @@
       <h1>快速开始</h1>
       <p class="lead">两分钟接入：先列工具，再调用工具。</p>
       <h2>1. 查看可用工具</h2>
-      <pre><code>curl -X POST 'https://xdzn.asia/mcp'   -H 'Authorization: Bearer &lt;你的KEY&gt;'   -H 'Content-Type: application/json'   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'</code></pre>
+      <pre><code>curl -X POST 'https://xdzn.asia/sse'   -H 'Authorization: Bearer &lt;你的KEY&gt;'   -H 'Content-Type: application/json'   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'</code></pre>
       <h2>2. 调用某个工具</h2>
-      <pre><code>curl -X POST 'https://xdzn.asia/mcp'   -H 'Authorization: Bearer &lt;你的KEY&gt;'   -H 'Content-Type: application/json'   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"getRanking","arguments":{"type":"user","page":1,"limit":20}}}'</code></pre>
+      <pre><code>curl -X POST 'https://xdzn.asia/sse'   -H 'Authorization: Bearer &lt;你的KEY&gt;'   -H 'Content-Type: application/json'   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"getRanking","arguments":{"type":"user","page":1,"limit":20}}}'</code></pre>
       <div class="muted">如果客户端要求 <code>SSE</code> 类型，把地址换成 <code>https://xdzn.asia/sse</code>。</div>
     </section>
 
@@ -164,13 +164,13 @@
 
       <div class="tabpane on" data-pane="claude">
         <h3>Claude Code（命令行）</h3>
-        <pre><code>claude mcp add hoj --transport http --url https://xdzn.asia/mcp --header "Authorization: Bearer &lt;KEY&gt;"</code></pre>
+        <pre><code>claude mcp add hoj --transport sse --url https://xdzn.asia/sse --header "Authorization: Bearer &lt;KEY&gt;"</code></pre>
         <h3>Claude Desktop / 配置文件</h3>
         <pre><code>{
   "mcpServers": {
     "hoj": {
-      "type": "http",
-      "url": "https://xdzn.asia/mcp",
+      "type": "sse",
+      "url": "https://xdzn.asia/sse",
       "headers": { "Authorization": "Bearer &lt;KEY&gt;" }
     }
   }
@@ -181,8 +181,8 @@
         <h3>Cursor</h3>
         <p class="muted">Settings → MCP → Add MCP Server,填入：</p>
         <pre><code>{
-  "type": "http",
-  "url": "https://xdzn.asia/mcp",
+  "type": "sse",
+  "url": "https://xdzn.asia/sse",
   "headers": { "Authorization": "Bearer &lt;KEY&gt;" }
 }</code></pre>
       </div>
@@ -190,8 +190,8 @@
       <div class="tabpane" data-pane="cherry">
         <h3>Cherry Studio</h3>
         <ul>
-          <li>新建 MCP 服务器，类型选 <b>HTTP</b>（或 SSE）；</li>
-          <li>地址：<code>https://xdzn.asia/mcp</code>；</li>
+          <li>新建 MCP 服务器，类型选 <b>SSE</b>；</li>
+          <li>地址：<code>https://xdzn.asia/sse</code>；</li>
           <li>请求头：<code>Authorization: Bearer &lt;KEY&gt;</code>；</li>
           <li>启用后即可在对话中使用该服务工具。</li>
         </ul>
@@ -203,7 +203,7 @@
         <table>
           <tr><th>字段</th><th>值</th></tr>
           <tr><td>类型</td><td>http（多数客户端）；若客户端只支持 SSE 则选 sse</td></tr>
-          <tr><td>网址</td><td><code>https://xdzn.asia/mcp</code></td></tr>
+          <tr><td>网址</td><td><code>https://xdzn.asia/sse</code></td></tr>
           <tr><td>请求头</td><td><code>Authorization: Bearer &lt;KEY&gt;</code></td></tr>
         </table>
       </div>
@@ -242,7 +242,7 @@
       <h1>常见问题</h1>
       <details class="faq"><summary>没有 API Key 能用吗？</summary><div class="bd">不能。需要向服务提供方申请 Key，并在请求头 <code>Authorization: Bearer</code> 中携带。</div></details>
       <details class="faq"><summary>返回 401 怎么办？</summary><div class="bd">Key 缺失或错误。检查请求头里 <code>Bearer </code> 与 Key 是否准确，或联系提供方确认 Key 是否有效。</div></details>
-      <details class="faq"><summary>应该用 http 还是 sse？</summary><div class="bd">优先 <code>http</code>，地址 <code>https://xdzn.asia/mcp</code>；若客户端只支持 SSE，用 <code>https://xdzn.asia/sse</code> 并把类型设为 sse。</div></details>
+      <details class="faq"><summary>应该用 http 还是 sse？</summary><div class="bd">优先 <code>http</code>，地址 <code>https://xdzn.asia/sse</code>；若客户端只支持 SSE，用 <code>https://xdzn.asia/sse</code> 并把类型设为 sse。</div></details>
       <details class="faq"><summary>工具返回的数据范围？</summary><div class="bd">仅公开数据（公开题库、排行榜、每日一题训练），均为只读，不涉及提交/修改。</div></details>
     </section>
 
@@ -270,9 +270,27 @@ document.querySelectorAll('.tab').forEach(t=>{
   });
 });
 // 在线调试
-const EP='/mcp';
+const EP='/sse';
 function hdrs(){const k=document.getElementById('key').value.trim();const h={'Content-Type':'application/json'};if(k)h['Authorization']='Bearer '+k;return h}
-async function rpc(b){const r=await fetch(EP,{method:'POST',headers:hdrs(),body:JSON.stringify(b)});const t=await r.text();try{return JSON.parse(t)}catch(e){return t}}
+async function sseEndpoint(){
+  const ctrl=new AbortController();
+  const res=await fetch(EP,{headers:hdrs(),signal:ctrl.signal});
+  if(!res.ok || !res.body) throw new Error('SSE 连接失败 HTTP '+res.status);
+  const reader=res.body.getReader(), dec=new TextDecoder();
+  let buf='', ep=null;
+  const timer=setTimeout(()=>ctrl.abort(),15000);
+  while(!ep){ const {done,value}=await reader.read(); if(done) break; buf+=dec.decode(value,{stream:true});
+    const parts=buf.split('
+
+'); buf=parts.pop();
+    for(const part of parts){ const d=part.split('
+').filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trim()).join('
+'); if(d) ep=d; } }
+  clearTimeout(timer); ctrl.abort();
+  if(!ep) throw new Error('SSE 握手失败：未获取到 message endpoint');
+  return ep;
+}
+async function rpc(b){ const ep=await sseEndpoint(); const r=await fetch(ep,{method:'POST',headers:hdrs(),body:JSON.stringify(b)}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return t} }
 function show(x){document.getElementById('out').textContent=typeof x==='string'?x:JSON.stringify(x,null,2)}
 async function toolsList(){show('loading…');try{show(await rpc({jsonrpc:'2.0',id:Date.now(),method:'tools/list',params:{}}))}catch(e){show('错误：'+e.message)}}
 async function callTool(){const name=document.getElementById('tool').value;let a={};try{a=JSON.parse(document.getElementById('args').value||'{}')}catch(e){show('参数不是合法 JSON: '+e.message);return}show('loading…');try{show(await rpc({jsonrpc:'2.0',id:Date.now(),method:'tools/call',params:{name,arguments:a}}))}catch(e){show('错误：'+e.message)}}

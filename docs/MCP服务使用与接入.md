@@ -7,7 +7,7 @@
 
 部署后对外：
 ```
-https://<你的域名>/mcp        # MCP Streamable HTTP 端点（Spring AI MCP Server）
+https://<你的域名>/mcp        # MCP SSE 端点（Spring AI MCP Server）
 Authorization: Bearer <MCP_API_KEYS>   # 这个 key 来自 .env 的 MCP_API_KEYS
 ```
 
@@ -16,21 +16,21 @@ Authorization: Bearer <MCP_API_KEYS>   # 这个 key 来自 .env 的 MCP_API_KEYS
 ## 二、如何查看“已拥有的 MCP 服务/工具”
 
 ### 0) 在线文档/查询页（已集成到前端）
-浏览器直接打开：`https://xdzn.asia/mcp-docs.html` —— 可在线列出工具、调用工具、查看各 Agent 接入方式，无需装任何客户端。
+浏览器直接打开：`https://xdzn.asia/sse-docs.html` —— 可在线列出工具、调用工具、查看各 Agent 接入方式，无需装任何客户端。
 
 MCP 客户端会自动发现工具（`tools/list`）。你也可以手动看：
 
 ### 1) 用官方 MCP Inspector（最直观）
 ```bash
 npx @modelcontextprotocol/inspector http://127.0.0.1:3000/mcp
-# 或公网： npx @modelcontextprotocol/inspector https://xdzn.asia/mcp
+# 或公网： npx @modelcontextprotocol/inspector https://xdzn.asia/sse
 # （若服务要求 Bearer，Inspector 连接配置里填 Authorization header）
 # 打开后会列出该服务提供的所有工具及其参数/描述，可在线调用测试。
 ```
 
 ### 2) 直接用 curl 调 `tools/list`（Streamable HTTP 用 JSON-RPC）
 ```bash
-curl -X POST 'https://xdzn.asia/mcp' \
+curl -X POST 'https://xdzn.asia/sse' \
 
   -H 'Authorization: Bearer <你的KEY>' \
 
@@ -61,7 +61,7 @@ curl -X POST 'https://xdzn.asia/mcp' \
 ### A. 手动测试（Inspector / curl）
 上面第三节即可直接调用，例如取排名：
 ```bash
-curl -X POST 'https://xdzn.asia/mcp' -H 'Authorization: Bearer <KEY>' -H 'Content-Type: application/json' \
+curl -X POST 'https://xdzn.asia/sse' -H 'Authorization: Bearer <KEY>' -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"getRanking","arguments":{"type":"user","page":1,"limit":20}}}'
 ```
 
@@ -71,7 +71,7 @@ curl -X POST 'https://xdzn.asia/mcp' -H 'Authorization: Bearer <KEY>' -H 'Conten
 
 ## 四、其它 Agent / MCP 客户端的接入方式
 
-MCP 客户端都是“配置一个 MCP Server 条目（类型=HTTP/URL + headers）”，填入 `/mcp` 地址与 API Key 即可。
+MCP 客户端都是“配置一个 MCP Server 条目（类型=HTTP/URL + headers）”，填入 `/sse` 地址与 API Key 即可。
 
 ### Claude Desktop / Claude Code
 `claude_desktop_config.json` 或 `~/.claude.json`（或 `claude mcp add`）：
@@ -79,8 +79,8 @@ MCP 客户端都是“配置一个 MCP Server 条目（类型=HTTP/URL + headers
 {
   "mcpServers": {
     "hoj": {
-      "type": "http",
-      "url": "https://xdzn.asia/mcp",
+      "type": "sse",
+      "url": "https://xdzn.asia/sse",
       "headers": { "Authorization": "Bearer <你的KEY>" }
     }
   }
@@ -88,17 +88,17 @@ MCP 客户端都是“配置一个 MCP Server 条目（类型=HTTP/URL + headers
 ```
 Claude Code 命令行：
 ```bash
-claude mcp add hoj --transport http --url https://xdzn.asia/mcp --header "Authorization: Bearer <KEY>"
+claude mcp add hoj --transport sse --url https://xdzn.asia/sse --header "Authorization: Bearer <KEY>"
 ```
 
 ### Cursor
 `Settings → MCP → Add MCP Server`：
 ```json
-{ "type": "http", "url": "https://xdzn.asia/mcp", "headers": { "Authorization": "Bearer <KEY>" } }
+{ "type": "sse", "url": "https://xdzn.asia/sse", "headers": { "Authorization": "Bearer <KEY>" } }
 ```
 
 ### Cherry Studio / 其它 MCP 客户端
-- 新建 **MCP 服务器**，类型选 **HTTP/SSE**，地址填 `https://xdzn.asia/mcp`；
+- 新建 **MCP 服务器**，类型选 **SSE**，地址填 `https://xdzn.asia/sse`；
 - 在 **请求头** 里加 `Authorization: Bearer <KEY>`；
 - 启用后即可在对话中使用该服务的工具。
 
