@@ -250,6 +250,28 @@
 </div>
 
 <script>
+// 在线调试：MCP Streamable HTTP 客户端
+const EP='/mcp';
+let SID=null;
+function hdrs(){const k=document.getElementById('key').value.trim();const h={'Content-Type':'application/json','Accept':'application/json, text/event-stream'};if(SID)h['Mcp-Session-Id']=SID;if(k)h['Authorization']='Bearer '+k;return h}
+async function rpc(method, params){
+  const isInit=(method==='initialize');
+  const body={jsonrpc:'2.0',id:Date.now(),method,params:params||{}};
+  const res=await fetch(EP,{method:'POST',headers:hdrs(),body:JSON.stringify(body)});
+  if(isInit){const s=res.headers.get('Mcp-Session-Id'); if(s)SID=s;}
+  const txt=await res.text();
+  try{
+    const tr=txt.trim();
+    if(tr.startsWith('{')) return JSON.parse(tr);
+    const m=tr.match(/^data:(.*)$/m);
+    if(m) return JSON.parse(m[1].trim());
+    return tr;
+  }catch(e){ return txt; }
+}
+async function ensureInit(){ if(!SID) await rpc('initialize',{protocolVersion:'2025-03-26',capabilities:{},clientInfo:{name:'mcp-docs',version:'1'}}); }
+function show(x){document.getElementById('out').textContent=typeof x==='string'?x:JSON.stringify(x,null,2)}
+async function toolsList(){show('loading…');try{await ensureInit();show(await rpc('tools/list',{}))}catch(e){show('错误：'+e.message)}}
+async function callTool(){const name=document.getElementById('tool').value;let a={};try{a=JSON.parse(document.getElementById('args').value||'{}')}catch(e){show('参数不是合法 JSON: '+e.message);return}show('loading…');try{await ensureInit();show(await rpc('tools/call',{name,arguments:a}))}catch(e){show('错误：'+e.message)}}
 // 侧边栏导航
 document.querySelectorAll('.nav a').forEach(a=>{
   a.addEventListener('click',e=>{
@@ -269,44 +291,6 @@ document.querySelectorAll('.tab').forEach(t=>{
     document.querySelector('.tabpane[data-pane="'+t.dataset.tab+'"]').classList.add('on');
   });
 });
-// 在线调试
-const EP='/sse';
-function hdrs(){const k=document.getElementById('key').value.trim();const h={'Content-Type':'application/json'};if(k)h['Authorization']='Bearer '+k;return h}
-async function rpc(method, params){
-  const ctrl=new AbortController();
-  const res=await fetch(EP,{headers:hdrs(),signal:ctrl.signal});
-  if(!res.ok||!res.body) throw new Error('SSE 连接失败 HTTP '+res.status);
-  const reader=res.body.getReader(), dec=new TextDecoder();
-  let buf='', ep=null, epReady=null;
-  const epP=new Promise(r=>{epReady=r});
-  const outP=new Promise((resolve,reject)=>{
-    const timer=setTimeout(()=>{try{ctrl.abort()}catch{};reject(new Error('SSE 超时'))},20000);
-    (async()=>{
-      while(true){
-        const {done,value}=await reader.read();
-        if(done){clearTimeout(timer);reject(new Error('SSE 连接已关闭'));return}
-        buf+=dec.decode(value,{stream:true});
-        let idx;
-        while((idx=buf.indexOf('\n\n'))>=0){
-          const block=buf.slice(0,idx); buf=buf.slice(idx+2);
-          const lines=block.split('\n');
-          let event='', data=[];
-          for(const l of lines){ if(l.startsWith(':'))continue; const i=l.indexOf(':'); if(i>0){const k=l.slice(0,i).trim(),v=l.slice(i+1).trim(); if(k==='event')event=v; else if(k==='data')data.push(v);} }
-          if(!ep&&event==='endpoint'){ ep=data.join('\n'); epReady(ep); }
-          else if(ep&&data.length){ clearTimeout(timer); try{ctrl.abort()}catch{}; resolve(JSON.parse(data.join('\n'))); return; }
-        }
-      }
-    })().catch(reject);
-  });
-  ep = await Promise.race([epP, new Promise((_,rej)=>setTimeout(()=>rej(new Error('SSE 握手超时')),10000))]);
-  const post = await fetch(ep,{method:'POST',headers:hdrs(),body:JSON.stringify({jsonrpc:'2.0',id:Date.now(),method,params})});
-  if(!post.ok) throw new Error('消息端点 HTTP '+post.status);
-  return await outP;
-}
-
-function show(x){document.getElementById('out').textContent=typeof x==='string'?x:JSON.stringify(x,null,2)}
-async function toolsList(){show('loading…');try{show(await rpc({jsonrpc:'2.0',id:Date.now(),method:'tools/list',params:{}}))}catch(e){show('错误：'+e.message)}}
-async function callTool(){const name=document.getElementById('tool').value;let a={};try{a=JSON.parse(document.getElementById('args').value||'{}')}catch(e){show('参数不是合法 JSON: '+e.message);return}show('loading…');try{show(await rpc({jsonrpc:'2.0',id:Date.now(),method:'tools/call',params:{name,arguments:a}}))}catch(e){show('错误：'+e.message)}}
 </script>
 </body>
 </html>

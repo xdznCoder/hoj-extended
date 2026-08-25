@@ -4,18 +4,10 @@ server:
 spring:
   application:
     name: hoj-mcp-server
-  ai:
-    mcp:
-      server:
-        name: hoj-mcp-server
-        version: 0.1.0
-        # 暴露 MCP 的 HTTP 端点。若启动器实际为 /sse（SSE），改为 /sse 即可
-        endpoint: /mcp
 
 hoj:
   upstream: ${MCP_UPSTREAM:http://hoj-backend:6688}
   api-keys: ${MCP_API_KEYS:}
-  cache-ttl: 60s
 
 logging:
   level:
